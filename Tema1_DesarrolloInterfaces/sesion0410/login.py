@@ -11,12 +11,12 @@ class login (QWidget):
 
         layout = QGridLayout()
 
-        nombre = QLineEdit()
-        nombre.setPlaceholderText("Pon tu login aquí")
-        password = QLineEdit()
-        password.setPlaceholderText("Pon tu contraseña aquí")
-        layout.addWidget(nombre, 0, 1, 1, 2)
-        layout.addWidget(password, 1, 1, 1, 2)
+        self.nombre = QLineEdit()
+        self.nombre.setPlaceholderText("Pon tu login aquí")
+        self.password = QLineEdit()
+        self.password.setPlaceholderText("Pon tu contraseña aquí")
+        layout.addWidget(self.nombre, 0, 1, 1, 2)
+        layout.addWidget(self.password, 1, 1, 1, 2)
 
         nombreLabel = QLabel("Login")
         passwordLabel = QLabel("Password")
@@ -30,17 +30,19 @@ class login (QWidget):
         
         btnCancel.clicked.connect(self.close) # Cerrar ventana mediante el boton Cancel
 
-        
-        
-    
-
+        btnLogin.clicked.connect(self.Inicio)
         self.setLayout(layout)
 
-    
 
+    def Inicio(self):
+        try:
+            if self.nombre.text() != "" and self.password.text() != "":
+                print(self.nombre.text(), self.password.text())
+            else:
+                print("Error. Introduce datos.")
+        except Exception as e: 
+            print(e)
         
-
-
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
