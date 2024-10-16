@@ -3,7 +3,7 @@ import sys
 
 from PyQt6.QtWidgets import QApplication, QDialog, QMainWindow, QPushButton, QVBoxLayout, QLabel
 
-class CustomDialog(QDialog):
+class CustomDialog(QDialog): # Crear otra clase para crear nuestro propio diálogo y que nos salga cuando pulsemos el boton del MainWindow
     def __init__(self):
         super().__init__()
 
