@@ -1,6 +1,10 @@
-import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QGridLayout, QVBoxLayout, QWidget, QLabel, QHBoxLayout, QPushButton, QSpacerItem, QSizePolicy, QComboBox, QLineEdit, QCalendarWidget
+# Librerias que he utilizado:
+import sys 
+import json # Libreria json para poder guardar los datos del formulario al registrarnos que tambien servirá para poder llamar a nuestro formulario a la hora de iniciar sesión
+import re
+from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QHBoxLayout, QPushButton, QSpacerItem, QSizePolicy, QComboBox, QLineEdit, QCalendarWidget, QMessageBox # Libreria PyQt6 para poder desarrollar las interfaces mediante estos widgets
 from PyQt6.QtCore import Qt
+
 
 class window_register(QMainWindow):
     def __init__(self):
@@ -68,6 +72,7 @@ class window_register(QMainWindow):
 
         self.btn_accept = QPushButton(self.traduccion["Español"]["accept"])
         self.btn_accept.setFixedSize(100, 30)
+        self.btn_accept.clicked.connect(self.validar_campos_vacios)
         layout_btn_accept_exit.addWidget(self.btn_accept)
 
         self.btn_exit = QPushButton(self.traduccion["Español"]["exit"])
@@ -111,6 +116,54 @@ class window_register(QMainWindow):
         self.btn_accept.setText(self.traduccion[idioma]["accept"])
         self.btn_exit.setText(self.traduccion[idioma]["exit"])
         self.label_lenguage.setText(self.traduccion[idioma]["lenguage"])
+        
+
+    def guardar_formulario(self):
+        datos_formulario = {
+            "name": self.lineEdit_name.text(),
+            "last_name": self.lineEdit_lastName.text(),
+            "password": self.lineEdit_password.text(),
+            "email": self.lineEdit_email.text()
+        }
+
+        try:
+            with open("datos_formulario.json", "w") as archivo_json:
+                json.dump(datos_formulario, archivo_json, indent=4)
+            QMessageBox.information(self, "Information", "The form has been created successfully")
+        except Exception as e:
+            self.mostrar_error(f"Error saving JSON file: {e}")
+                
+    
+    def validar_campos_vacios(self):
+        if not self.validar_campos_name_lastName(self.lineEdit_name.text().strip()):
+            self.mostrar_error("The 'name' field must have at least one capital letter, three letters and contain no numbers.")
+        elif not self.validar_campos_name_lastName(self.lineEdit_lastName.text().strip()):
+            self.mostrar_error("The 'last name' field must have at least one capital letter, three letters and contain no numbers.")
+        elif not self.validar_campo_password(self.lineEdit_password.text().strip()):
+            self.mostrar_error("The 'password' field must have a minimum of 8 characters")
+        elif not self.lineEdit_email.text().strip():
+            self.mostrar_error("The 'email' field must have @gmail or @hotmail")
+        else:
+           self.guardar_formulario()
+
+    def validar_campos_name_lastName(self, field):
+        if len(field) < 3:
+            return False
+        if not re.match(r'^[A-Za-z]+$', field):
+            return False
+        if not any(c.isupper() for c in field):
+            return False
+        return True
+    
+    def validar_campo_password(self, field):
+        return len(field) >= 8
+    
+    def validar_campo_email(self, field):
+        return re.match('"gmail.com", "hotmail.com"', field)
+
+    def mostrar_error(self, mensaje):
+        QMessageBox.warning(self, "Error", mensaje)
+
 
 class main_window(QMainWindow):
 
