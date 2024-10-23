@@ -5,6 +5,42 @@ import re
 from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QHBoxLayout, QPushButton, QSpacerItem, QSizePolicy, QComboBox, QLineEdit, QCalendarWidget, QMessageBox # Libreria PyQt6 para poder desarrollar las interfaces mediante estos widgets
 from PyQt6.QtCore import Qt
 
+class window_login(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("OllisProyect - Login")
+
+        
+
+
+
+        layout_main = QVBoxLayout()
+        layout_title = QVBoxLayout()
+        layout_btn_accept_exit = QHBoxLayout()
+        layout_login = QVBoxLayout()
+
+        self.label_title = QLabel()
+        fuente = self.label_title.font()
+        fuente.setPointSize(20)
+        layout_title.addWidget(self.label_title)
+        layout_title.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
+
+    
+
+
+        
+
+        layout_main.addLayout(layout_title)
+
+        widget_main = QWidget()
+        widget_main.setLayout(layout_main)
+        self.setCentralWidget(widget_main)
+
+
+
+
+
+
 
 class window_register(QMainWindow):
     def __init__(self):
@@ -217,6 +253,7 @@ class main_window(QMainWindow):
         
         self.btn_login = QPushButton(self.traduccion[self.current_language]["login"])
         self.btn_login.setFixedSize(100,30)
+        self.btn_login.clicked.connect(self.window_login)
         layout_btn_register_login.addWidget(self.btn_login)
         layout_btn_register_login.setAlignment(self.btn_login, Qt.AlignmentFlag.AlignHCenter)
 
@@ -264,6 +301,11 @@ class main_window(QMainWindow):
     def window_register(self):
         self.another_window1 = window_register()
         self.another_window1.show()
+
+    def window_login(self):
+        self.another_window2 = window_login()
+        self.another_window2.show()
+
 
 
 if __name__ == "__main__":
