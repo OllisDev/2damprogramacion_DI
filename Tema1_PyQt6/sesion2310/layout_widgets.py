@@ -7,34 +7,33 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("My app")
 
         layout_main = QVBoxLayout()
-        layout_label = QHBoxLayout()
+        layout_fila1 = QHBoxLayout()
+        layout_fila2 = QHBoxLayout()
 
         btn1 = QPushButton("Botón 1")
-        layout_main.addWidget(btn1)
+        layout_fila1.addWidget(btn1)
 
         btn2 = QPushButton("Botón 2")
-        layout_main.addWidget(btn2)
+        layout_fila1.addWidget(btn2)
 
         label = QLabel("Progreso")
-        layout_label.addWidget(label)
+        layout_fila2.addWidget(label)
 
         progressBar = QProgressBar()
         progressBar.setValue(100)
         progressBar.setRange(0, 100)
-        layout_label.addWidget(progressBar)
-
-        self.setCentralWidget(label)
-        self.setCentralWidget(progressBar)  
+        layout_fila2.addWidget(progressBar)
 
         widget = QWidget()
         widget.setLayout(layout_main)
         self.setCentralWidget(widget)
         
-        layout_main.addLayout(layout_label)
+        layout_main.addLayout(layout_fila1)
+        layout_main.addLayout(layout_fila2)
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()
-    window.show
+    window.show()
     app.exec()
