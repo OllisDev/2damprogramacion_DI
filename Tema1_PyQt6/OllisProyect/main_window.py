@@ -1,5 +1,6 @@
 # Librerias que he utilizado:
 import sys 
+import hashlib
 import json # Libreria json para poder guardar los datos del formulario al registrarnos que tambien servirá para poder llamar a nuestro formulario a la hora de iniciar sesión
 import re
 from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QHBoxLayout, QPushButton, QSpacerItem, QSizePolicy, QComboBox, QLineEdit, QCalendarWidget, QMessageBox # Libreria PyQt6 para poder desarrollar las interfaces mediante estos widgets
@@ -10,36 +11,114 @@ class window_login(QMainWindow):
         super().__init__()
         self.setWindowTitle("OllisProyect - Login")
 
-        
+        self.traducciones = {
+            "Español": {
+                "title": "Iniciar Sesión",
+                "name": "Introduce tu nombre",
+                "password": "Introduce tu contraseña",
+                "login": "Iniciar sesión",
+                "cancel": "Cancelar",
+                "language": "Idioma"
+            },
+            "Inglés": {
+                "title": "Login",
+                "name": "Enter your name",
+                "password": "Enter your password",
+                "login": "Log in",
+                "cancel": "Cancel",
+                "language": "Language"
+            }
+        }
 
-
+        self.idioma_actual = "Español"
 
         layout_main = QVBoxLayout()
         layout_title = QVBoxLayout()
-        layout_btn_accept_exit = QHBoxLayout()
         layout_login = QVBoxLayout()
+        layout_btn_accept_exit = QHBoxLayout()
+        layout_lenguage = QHBoxLayout()
+        
 
-        self.label_title = QLabel()
+        self.label_title = QLabel(self.traducciones[self.idioma_actual]["title"])
         fuente = self.label_title.font()
         fuente.setPointSize(20)
+        self.label_title.setFont(fuente)
         layout_title.addWidget(self.label_title)
         layout_title.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
 
-    
 
+        self.lineEdit_name = QLineEdit()
+        self.lineEdit_name.setPlaceholderText(self.traducciones[self.idioma_actual]["name"])
+        layout_login.addWidget(self.lineEdit_name)
 
+        self.lineEdit_password = QLineEdit()
+        self.lineEdit_password.setPlaceholderText(self.traducciones[self.idioma_actual]["password"])
+        self.lineEdit_password.setEchoMode(QLineEdit.EchoMode.Password)
+        layout_login.addWidget(self.lineEdit_password)
+
+        layout_login.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
+        self.btn_accept = QPushButton(self.traducciones[self.idioma_actual]["login"])
+        self.btn_accept.setFixedSize(100, 30)
+        self.btn_accept.clicked.connect(self.iniciar_sesion)
+        layout_btn_accept_exit.addWidget(self.btn_accept)
+
+        self.btn_cancel = QPushButton(self.traducciones[self.idioma_actual]["cancel"])
+        self.btn_cancel.setFixedSize(100, 30)
+        self.btn_cancel.clicked.connect(self.close)
+        layout_btn_accept_exit.addWidget(self.btn_cancel)
+        
+        layout_btn_accept_exit.setAlignment(Qt.AlignmentFlag.AlignRight)
+
+        self.label_lenguage = QLabel(self.traducciones[self.idioma_actual]["language"])
+        layout_lenguage.addWidget(self.label_lenguage)
+
+
+        self.lenguage = QComboBox()
+        self.lenguage.addItems(["Español", "Inglés"])
+        self.lenguage.currentIndexChanged.connect(self.cambiar_idioma)
+        layout_lenguage.addWidget(self.lenguage)
+
 
         layout_main.addLayout(layout_title)
+        layout_main.addLayout(layout_login)
+        layout_main.addLayout(layout_btn_accept_exit)
+        layout_main.addLayout(layout_lenguage)
+
 
         widget_main = QWidget()
         widget_main.setLayout(layout_main)
         self.setCentralWidget(widget_main)
+    
+    def cambiar_idioma(self):
+        self.idioma_actual = self.lenguage.currentText()
 
+        self.label_title.setText(self.traducciones[self.idioma_actual]["title"])
+        self.lineEdit_name.setPlaceholderText(self.traducciones[self.idioma_actual]["name"])
+        self.lineEdit_password.setPlaceholderText(self.traducciones[self.idioma_actual]["password"])
+        self.btn_accept.setText(self.traducciones[self.idioma_actual]["login"])
+        self.btn_cancel.setText(self.traducciones[self.idioma_actual]["cancel"])
+        self.label_lenguage.setText(self.traducciones[self.idioma_actual]["language"])
 
+    
+    def iniciar_sesion(self):
+        name = self.lineEdit_name.text().strip()
+        password = self.lineEdit_password.text().strip()
 
+        hashed_password = hashlib.sha256(password.encode()).hexdigest()
 
-
+        try:
+            with open("datos_formulario.json", "r") as archivo_json:
+                datos = json.load(archivo_json)
+                if datos["name"] == name and datos["password"] == hashed_password:
+                    QMessageBox.information(self, "Success", "Login successful!")
+                else:
+                    QMessageBox.warning(self, "Error", "Invalid username or password.")
+        except FileNotFoundError:
+            QMessageBox.warning(self, "Error", "No users registered yet")
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"An error ocurred: {e}")
+        
 
 
 class window_register(QMainWindow):
@@ -155,10 +234,12 @@ class window_register(QMainWindow):
         
 
     def guardar_formulario(self):
+        password = self.lineEdit_password.text().strip()
+        hashed_password = hashlib.sha256(password.encode()).hexdigest()
         datos_formulario = {
             "name": self.lineEdit_name.text(),
             "last_name": self.lineEdit_lastName.text(),
-            "password": self.lineEdit_password.text(),
+            "password": hashed_password,
             "email": self.lineEdit_email.text()
         }
 
