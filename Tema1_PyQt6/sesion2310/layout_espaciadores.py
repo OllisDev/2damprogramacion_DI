@@ -11,7 +11,7 @@ class MainWindow(QMainWindow):
         label = QLabel("Hola")
         layout.addWidget(label)
 
-        layout.addStretch()
+        layout.addStretch() # addStretch() = añadir un espacio entre varios layouts o widgets
 
         btn = QPushButton("Pulsame")
         layout.addWidget(btn)
