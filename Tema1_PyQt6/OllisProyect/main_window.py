@@ -244,12 +244,27 @@ class window_register(QMainWindow):
         }
 
         try:
+            # Intentamos abrir el archivo en modo de lectura para cargar cuentas existentes
+            with open("datos_formulario.json", "r") as archivo_json:
+                try:
+                    cuentas = json.load(archivo_json)  # Cargar cuentas si el JSON es válido
+                except json.JSONDecodeError:
+                    cuentas = []  # Si el JSON está vacío o es inválido, iniciamos una lista vacía
+        except FileNotFoundError:
+            cuentas = []  # Si el archivo no existe, iniciamos una lista vacía
+
+        # Añadimos la nueva cuenta
+        cuentas.append(datos_formulario)
+
+        try:
+            # Guardamos todas las cuentas en el archivo JSON
             with open("datos_formulario.json", "w") as archivo_json:
-                json.dump(datos_formulario, archivo_json, indent=4)
+                json.dump(cuentas, archivo_json, indent=4)
+
             QMessageBox.information(self, "Information", "The form has been created successfully")
+
         except Exception as e:
-            self.mostrar_error(f"Error saving JSON file: {e}")
-                
+            self.mostrar_error(f"Error saving JSON file: {e}")                
     
     def validar_campos_vacios(self):
         if not self.validar_campos_name_lastName(self.lineEdit_name.text().strip()):
@@ -258,7 +273,7 @@ class window_register(QMainWindow):
             self.mostrar_error("The 'last name' field must have at least one capital letter, three letters and contain no numbers.")
         elif not self.validar_campo_password(self.lineEdit_password.text().strip()):
             self.mostrar_error("The 'password' field must have a minimum of 8 characters")
-        elif not self.lineEdit_email.text().strip():
+        elif not self.validar_campo_email(self.lineEdit_email.text().strip()):
             self.mostrar_error("The 'email' field must have @gmail or @hotmail")
         else:
            self.guardar_formulario()
@@ -276,7 +291,8 @@ class window_register(QMainWindow):
         return len(field) >= 8
     
     def validar_campo_email(self, field):
-        return re.match('"gmail.com", "hotmail.com"', field)
+        patron = r'^[a-zA-Z0-9._%-]+@(gmail|hotmail)\.com$'
+        return re.match(patron, field) is not None
 
     def mostrar_error(self, mensaje):
         QMessageBox.warning(self, "Error", mensaje)
@@ -370,7 +386,7 @@ class main_window(QMainWindow):
         widget_main.setLayout(layout_main)
         self.setCentralWidget(widget_main)
 
-    def cambiar_idioma(self):
+    def cambiar_idioma(self):  
         self.current_language = self.lenguage.currentText()
 
         self.title.setText(self.traduccion[self.current_language]["title"])
