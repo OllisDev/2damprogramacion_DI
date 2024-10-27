@@ -3,13 +3,16 @@ import sys
 import hashlib
 import json # Libreria json para poder guardar los datos del formulario al registrarnos que tambien servirá para poder llamar a nuestro formulario a la hora de iniciar sesión
 import re
+import subprocess
 from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QHBoxLayout, QPushButton, QSpacerItem, QSizePolicy, QComboBox, QLineEdit, QCalendarWidget, QMessageBox # Libreria PyQt6 para poder desarrollar las interfaces mediante estos widgets
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QIcon, QPixmap
 
 class window_login(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("OllisProyect - Login")
+
 
         self.traducciones = {
             "Español": {
@@ -110,14 +113,29 @@ class window_login(QMainWindow):
         try:
             with open("datos_formulario.json", "r") as archivo_json:
                 datos = json.load(archivo_json)
-                if datos["name"] == name and datos["password"] == hashed_password:
-                    QMessageBox.information(self, "Success", "Login successful!")
-                else:
-                    QMessageBox.warning(self, "Error", "Invalid username or password.")
+                usuario_encontrado = False
+                if isinstance(datos, list):
+                    for cuenta in datos:
+                        if cuenta["name"] == name and cuenta["password"] == hashed_password:
+                            usuario_encontrado = True
+                            QMessageBox.information(self, "Success", "Login successful!")
+                            self.abrir_aplicacion()
+                            return
+                    
+                    if not usuario_encontrado:
+                        QMessageBox.warning(self, "Error", "Invalid username or password.")
+
         except FileNotFoundError:
             QMessageBox.warning(self, "Error", "No users registered yet")
         except Exception as e:
             QMessageBox.warning(self, "Error", f"An error ocurred: {e}")
+
+            
+    def abrir_aplicacion(self):
+        try:
+            subprocess.Popen(["notepad"])
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Could not open application: {str(e)}")
         
 
 
